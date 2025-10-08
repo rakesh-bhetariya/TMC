@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { calculateWeightFromBhari, calculateWeightFromBars, calculatePrice } from "@/lib/tmtData";
+import { calculateWeightFromBhari, calculateWeightFromBars } from "@/lib/tmtData";
 
 export interface CalculationItem {
   id: string;
@@ -12,11 +12,10 @@ export interface CalculationItem {
 
 interface CalculationTableProps {
   items: CalculationItem[];
-  basePrice: number;
   onRemoveItem: (id: string) => void;
 }
 
-export default function CalculationTable({ items, basePrice, onRemoveItem }: CalculationTableProps) {
+export default function CalculationTable({ items, onRemoveItem }: CalculationTableProps) {
   if (items.length === 0) {
     return (
       <Card className="p-8 text-center">
@@ -32,14 +31,6 @@ export default function CalculationTable({ items, basePrice, onRemoveItem }: Cal
     return sum + weight;
   }, 0);
 
-  const totalCost = items.reduce((sum, item) => {
-    const weight = item.mode === 'bhari' 
-      ? calculateWeightFromBhari(item.diameter, item.quantity)
-      : calculateWeightFromBars(item.diameter, item.quantity);
-    const price = calculatePrice(item.diameter, basePrice);
-    return sum + (weight * price);
-  }, 0);
-
   return (
     <div className="space-y-4">
       <Card className="overflow-hidden">
@@ -50,8 +41,6 @@ export default function CalculationTable({ items, basePrice, onRemoveItem }: Cal
                 <th className="px-4 py-3 text-left font-semibold">Diameter</th>
                 <th className="px-4 py-3 text-left font-semibold">Quantity</th>
                 <th className="px-4 py-3 text-left font-semibold">Weight (MT)</th>
-                <th className="px-4 py-3 text-left font-semibold">Price/MT</th>
-                <th className="px-4 py-3 text-left font-semibold">Total Cost</th>
                 <th className="px-4 py-3 text-left font-semibold">Action</th>
               </tr>
             </thead>
@@ -60,8 +49,6 @@ export default function CalculationTable({ items, basePrice, onRemoveItem }: Cal
                 const weight = item.mode === 'bhari' 
                   ? calculateWeightFromBhari(item.diameter, item.quantity)
                   : calculateWeightFromBars(item.diameter, item.quantity);
-                const price = calculatePrice(item.diameter, basePrice);
-                const cost = weight * price;
 
                 return (
                   <tr 
@@ -77,12 +64,6 @@ export default function CalculationTable({ items, basePrice, onRemoveItem }: Cal
                     </td>
                     <td className="px-4 py-3 font-mono" data-testid={`text-weight-${item.id}`}>
                       {weight.toFixed(3)}
-                    </td>
-                    <td className="px-4 py-3 font-mono" data-testid={`text-price-${item.id}`}>
-                      ₹{price.toLocaleString('en-IN')}
-                    </td>
-                    <td className="px-4 py-3 font-mono font-semibold" data-testid={`text-cost-${item.id}`}>
-                      ₹{cost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </td>
                     <td className="px-4 py-3">
                       <Button
@@ -104,13 +85,9 @@ export default function CalculationTable({ items, basePrice, onRemoveItem }: Cal
             </tbody>
             <tfoot className="bg-accent text-accent-foreground font-semibold">
               <tr>
-                <td colSpan={2} className="px-4 py-3 text-right">TOTAL</td>
+                <td colSpan={2} className="px-4 py-3 text-right">TOTAL WEIGHT</td>
                 <td className="px-4 py-3 font-mono text-lg" data-testid="text-total-weight">
                   {totalWeight.toFixed(3)} MT
-                </td>
-                <td className="px-4 py-3"></td>
-                <td className="px-4 py-3 font-mono text-lg" data-testid="text-total-cost">
-                  ₹{totalCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                 </td>
                 <td className="px-4 py-3"></td>
               </tr>
