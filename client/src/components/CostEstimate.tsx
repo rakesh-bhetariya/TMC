@@ -49,10 +49,36 @@ export default function CostEstimate({
   const handleShareAsImage = async () => {
     if (!estimateRef.current) return;
 
+    const element = estimateRef.current;
+    const tableContainer = element.querySelector('.overflow-x-auto') as HTMLElement;
+    
+    const originalOverflow = tableContainer?.style.overflow || '';
+    const originalScrollLeft = tableContainer?.scrollLeft || 0;
+    const originalScrollTop = tableContainer?.scrollTop || 0;
+    const originalElementScrollLeft = element.scrollLeft;
+    const originalElementScrollTop = element.scrollTop;
+
     try {
-      const canvas = await html2canvas(estimateRef.current, {
+      if (tableContainer) {
+        tableContainer.style.overflow = 'visible';
+        tableContainer.scrollLeft = 0;
+        tableContainer.scrollTop = 0;
+      }
+      
+      element.scrollLeft = 0;
+      element.scrollTop = 0;
+      
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const canvas = await html2canvas(element, {
         backgroundColor: '#ffffff',
         scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
       });
       
       canvas.toBlob((blob) => {
@@ -69,6 +95,14 @@ export default function CostEstimate({
       }, 'image/jpeg', 0.95);
     } catch (error) {
       console.error('Failed to capture estimate:', error);
+    } finally {
+      if (tableContainer) {
+        tableContainer.style.overflow = originalOverflow;
+        tableContainer.scrollLeft = originalScrollLeft;
+        tableContainer.scrollTop = originalScrollTop;
+      }
+      element.scrollLeft = originalElementScrollLeft;
+      element.scrollTop = originalElementScrollTop;
     }
   };
 
