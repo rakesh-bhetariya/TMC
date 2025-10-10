@@ -37,3 +37,25 @@ export function calculatePrice(diameter: number, basePrice: number): number {
   if (!spec) return basePrice;
   return basePrice + spec.priceAdjustment;
 }
+
+export function roundUpToBhariMultiple(diameter: number, barCount: number): number {
+  const spec = getSpecByDiameter(diameter);
+  if (!spec) return barCount;
+  
+  const pcsInBhari = spec.pcsInBhari;
+  const remainder = barCount % pcsInBhari;
+  
+  if (remainder === 0) {
+    return barCount;
+  }
+  
+  return barCount + (pcsInBhari - remainder);
+}
+
+export function calculateBhariCount(diameter: number, barCount: number): number {
+  const spec = getSpecByDiameter(diameter);
+  if (!spec) return 0;
+  
+  const roundedBars = roundUpToBhariMultiple(diameter, barCount);
+  return Math.ceil(roundedBars / spec.pcsInBhari);
+}
