@@ -81,9 +81,22 @@ Price Adjustments:
 - localStorage for history persistence
 - Service Worker for PWA functionality
 
+## Android APK Conversion
+
+The app is prepared for conversion to Android APK:
+- **Build Guides**: `APK_BUILD_GUIDE.md` provides step-by-step instructions for PWABuilder and Bubblewrap methods
+- **Icon Setup**: `public/icon-guide.md` contains instructions for creating required PNG icons
+- **Asset Links**: `public/.well-known/assetlinks.json` template for TWA verification
+- **Checklist**: `BEFORE_APK_BUILD_CHECKLIST.md` ensures all requirements are met before building
+
+**Important**: PNG icons (192x192 and 512x512) must be created before building APK. See `public/icon-guide.md` for instructions.
+
 ## Recent Changes
 
 **Latest Update (October 2024)**:
+- Added Android APK conversion preparation files and guides
+- Updated manifest.json to reference PNG icons for Android compatibility
+- Refined cost estimate layout: date inline with customer info, TOTAL aligned under Quantity column
 - Removed installation instructions section
 - Moved base price input to after weight calculation
 - Added customer name and delivery address fields
