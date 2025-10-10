@@ -94,6 +94,7 @@ The app is prepared for conversion to Android APK:
 ## Recent Changes
 
 **Latest Update (October 2024)**:
+- Fixed mobile image cropping bug: Share as JPG now captures full table width on mobile devices
 - Added Android APK conversion preparation files and guides
 - Updated manifest.json to reference PNG icons for Android compatibility
 - Refined cost estimate layout: date inline with customer info, TOTAL aligned under Quantity column
