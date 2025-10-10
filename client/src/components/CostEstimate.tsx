@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Save, Share2 } from "lucide-react";
 import { CalculationItem } from "./CalculationTable";
-import { calculateWeightFromBhari, calculateWeightFromBars, calculatePrice } from "@/lib/tmtData";
+import { calculateWeightFromBhari, calculateWeightFromBars, calculatePrice, roundUpToBhariMultiple, calculateBhariCount } from "@/lib/tmtData";
 import html2canvas from "html2canvas";
 import { useRef } from "react";
 
@@ -24,17 +24,25 @@ export default function CostEstimate({
   const estimateRef = useRef<HTMLDivElement>(null);
 
   const totalCost = items.reduce((sum, item) => {
+    const roundedQuantity = item.mode === 'bars' 
+      ? roundUpToBhariMultiple(item.diameter, item.quantity)
+      : item.quantity;
+    
     const weight = item.mode === 'bhari' 
       ? calculateWeightFromBhari(item.diameter, item.quantity)
-      : calculateWeightFromBars(item.diameter, item.quantity);
+      : calculateWeightFromBars(item.diameter, roundedQuantity);
     const price = calculatePrice(item.diameter, basePrice);
     return sum + (weight * price);
   }, 0);
 
   const totalWeight = items.reduce((sum, item) => {
+    const roundedQuantity = item.mode === 'bars' 
+      ? roundUpToBhariMultiple(item.diameter, item.quantity)
+      : item.quantity;
+    
     const weight = item.mode === 'bhari' 
       ? calculateWeightFromBhari(item.diameter, item.quantity)
-      : calculateWeightFromBars(item.diameter, item.quantity);
+      : calculateWeightFromBars(item.diameter, roundedQuantity);
     return sum + weight;
   }, 0);
 
@@ -75,6 +83,13 @@ export default function CostEstimate({
           <div className="text-center border-b pb-4">
             <h2 className="text-2xl font-bold text-primary">InfraOne TMT Calculator</h2>
             <p className="text-sm text-muted-foreground mt-1">Cost Estimate</p>
+            <p className="text-sm text-muted-foreground mt-2" data-testid="text-estimate-date">
+              Date: {new Date().toLocaleDateString('en-IN', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+              })}
+            </p>
           </div>
 
           {(customerName || deliveryAddress) && (
@@ -107,16 +122,28 @@ export default function CostEstimate({
               </thead>
               <tbody>
                 {items.map((item, index) => {
+                  const roundedQuantity = item.mode === 'bars' 
+                    ? roundUpToBhariMultiple(item.diameter, item.quantity)
+                    : item.quantity;
+                  
+                  const bhariCount = item.mode === 'bars'
+                    ? calculateBhariCount(item.diameter, item.quantity)
+                    : item.quantity;
+                  
                   const weight = item.mode === 'bhari' 
                     ? calculateWeightFromBhari(item.diameter, item.quantity)
-                    : calculateWeightFromBars(item.diameter, item.quantity);
+                    : calculateWeightFromBars(item.diameter, roundedQuantity);
                   const price = calculatePrice(item.diameter, basePrice);
                   const cost = weight * price;
 
                   return (
                     <tr key={item.id} className={index % 2 === 0 ? 'bg-background' : 'bg-muted/30'}>
                       <td className="px-3 py-2">{item.diameter}mm</td>
-                      <td className="px-3 py-2">{item.quantity} {item.mode === 'bhari' ? 'Bhari' : 'Bars'}</td>
+                      <td className="px-3 py-2">
+                        {item.mode === 'bhari' 
+                          ? `${item.quantity} Bhari` 
+                          : `${roundedQuantity} Bars (${bhariCount} Bhari)`}
+                      </td>
                       <td className="px-3 py-2 font-mono">{weight.toFixed(3)}</td>
                       <td className="px-3 py-2 font-mono">₹{price.toLocaleString('en-IN')}</td>
                       <td className="px-3 py-2 font-mono">₹{cost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
@@ -137,9 +164,6 @@ export default function CostEstimate({
             </table>
           </div>
 
-          <div className="text-center text-xs text-muted-foreground pt-4 border-t">
-            <p>Date: {new Date().toLocaleDateString('en-IN')}</p>
-          </div>
         </div>
       </div>
 

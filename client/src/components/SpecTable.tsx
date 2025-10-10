@@ -21,9 +21,9 @@ export default function SpecTable() {
                 <thead className="bg-primary text-primary-foreground">
                   <tr>
                     <th className="px-4 py-3 text-left font-semibold">Dia</th>
-                    <th className="px-4 py-3 text-left font-semibold">Per PC Wight</th>
+                    <th className="px-4 py-3 text-left font-semibold">Per PC Weight</th>
                     <th className="px-4 py-3 text-left font-semibold">Pcs in Bhari</th>
-                    <th className="px-4 py-3 text-left font-semibold">Bhari Wight (KG)</th>
+                    <th className="px-4 py-3 text-left font-semibold">Bhari Weight (KG)</th>
                   </tr>
                 </thead>
                 <tbody>

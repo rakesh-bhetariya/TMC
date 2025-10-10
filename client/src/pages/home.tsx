@@ -10,7 +10,7 @@ import CostEstimate from "@/components/CostEstimate";
 import SpecTable from "@/components/SpecTable";
 import HistoryModal, { SavedEstimate } from "@/components/HistoryModal";
 import { Trash2, History } from "lucide-react";
-import { calculateWeightFromBhari, calculateWeightFromBars, calculatePrice } from "@/lib/tmtData";
+import { calculateWeightFromBhari, calculateWeightFromBars, calculatePrice, roundUpToBhariMultiple } from "@/lib/tmtData";
 
 const STORAGE_KEY = 'tmt-calculator-history';
 
@@ -55,16 +55,24 @@ export default function Home() {
   };
 
   const totalWeight = items.reduce((sum, item) => {
+    const roundedQuantity = item.mode === 'bars' 
+      ? roundUpToBhariMultiple(item.diameter, item.quantity)
+      : item.quantity;
+    
     const weight = item.mode === 'bhari' 
       ? calculateWeightFromBhari(item.diameter, item.quantity)
-      : calculateWeightFromBars(item.diameter, item.quantity);
+      : calculateWeightFromBars(item.diameter, roundedQuantity);
     return sum + weight;
   }, 0);
 
   const totalCost = items.reduce((sum, item) => {
+    const roundedQuantity = item.mode === 'bars' 
+      ? roundUpToBhariMultiple(item.diameter, item.quantity)
+      : item.quantity;
+    
     const weight = item.mode === 'bhari' 
       ? calculateWeightFromBhari(item.diameter, item.quantity)
-      : calculateWeightFromBars(item.diameter, item.quantity);
+      : calculateWeightFromBars(item.diameter, roundedQuantity);
     const price = calculatePrice(item.diameter, basePrice);
     return sum + (weight * price);
   }, 0);

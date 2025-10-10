@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { calculateWeightFromBhari, calculateWeightFromBars } from "@/lib/tmtData";
+import { calculateWeightFromBhari, calculateWeightFromBars, roundUpToBhariMultiple, calculateBhariCount } from "@/lib/tmtData";
 
 export interface CalculationItem {
   id: string;
@@ -27,7 +27,7 @@ export default function CalculationTable({ items, onRemoveItem }: CalculationTab
   const totalWeight = items.reduce((sum, item) => {
     const weight = item.mode === 'bhari' 
       ? calculateWeightFromBhari(item.diameter, item.quantity)
-      : calculateWeightFromBars(item.diameter, item.quantity);
+      : calculateWeightFromBars(item.diameter, roundUpToBhariMultiple(item.diameter, item.quantity));
     return sum + weight;
   }, 0);
 
@@ -46,9 +46,19 @@ export default function CalculationTable({ items, onRemoveItem }: CalculationTab
             </thead>
             <tbody>
               {items.map((item, index) => {
+                const roundedQuantity = item.mode === 'bars' 
+                  ? roundUpToBhariMultiple(item.diameter, item.quantity)
+                  : item.quantity;
+                
+                const bhariCount = item.mode === 'bars'
+                  ? calculateBhariCount(item.diameter, item.quantity)
+                  : item.quantity;
+                
                 const weight = item.mode === 'bhari' 
                   ? calculateWeightFromBhari(item.diameter, item.quantity)
-                  : calculateWeightFromBars(item.diameter, item.quantity);
+                  : calculateWeightFromBars(item.diameter, roundedQuantity);
+
+                const isRounded = item.mode === 'bars' && roundedQuantity !== item.quantity;
 
                 return (
                   <tr 
@@ -60,7 +70,20 @@ export default function CalculationTable({ items, onRemoveItem }: CalculationTab
                       {item.diameter}mm
                     </td>
                     <td className="px-4 py-3" data-testid={`text-quantity-${item.id}`}>
-                      {item.quantity} {item.mode === 'bhari' ? 'Bhari' : 'Bars'}
+                      {item.mode === 'bhari' ? (
+                        <span>{item.quantity} Bhari</span>
+                      ) : isRounded ? (
+                        <div className="space-y-1">
+                          <div className="text-muted-foreground text-sm line-through">
+                            {item.quantity} Bars
+                          </div>
+                          <div className="font-medium">
+                            {roundedQuantity} Bars ({bhariCount} Bhari)
+                          </div>
+                        </div>
+                      ) : (
+                        <span>{item.quantity} Bars ({bhariCount} Bhari)</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 font-mono" data-testid={`text-weight-${item.id}`}>
                       {weight.toFixed(3)}
