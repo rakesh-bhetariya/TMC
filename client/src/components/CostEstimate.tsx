@@ -83,31 +83,33 @@ export default function CostEstimate({
           <div className="text-center border-b pb-4">
             <h2 className="text-2xl font-bold text-primary">InfraOne TMT Calculator</h2>
             <p className="text-sm text-muted-foreground mt-1">Cost Estimate</p>
-            <p className="text-sm text-muted-foreground mt-2" data-testid="text-estimate-date">
-              Date: {new Date().toLocaleDateString('en-IN', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric' 
-              })}
-            </p>
           </div>
 
-          {(customerName || deliveryAddress) && (
-            <div className="space-y-2 border-b pb-4">
-              {customerName && (
-                <div>
-                  <span className="font-semibold">Customer: </span>
-                  <span data-testid="text-estimate-customer">{customerName}</span>
-                </div>
-              )}
-              {deliveryAddress && (
-                <div>
-                  <span className="font-semibold">Delivery Address: </span>
-                  <span data-testid="text-estimate-address">{deliveryAddress}</span>
-                </div>
-              )}
+          <div className="space-y-2 border-b pb-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 space-y-2">
+                {customerName && (
+                  <div>
+                    <span className="font-semibold">Customer: </span>
+                    <span data-testid="text-estimate-customer">{customerName}</span>
+                  </div>
+                )}
+                {deliveryAddress && (
+                  <div>
+                    <span className="font-semibold">Delivery Address: </span>
+                    <span data-testid="text-estimate-address">{deliveryAddress}</span>
+                  </div>
+                )}
+              </div>
+              <div className="text-sm text-muted-foreground whitespace-nowrap" data-testid="text-estimate-date">
+                Date: {new Date().toLocaleDateString('en-IN', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric' 
+                })}
+              </div>
             </div>
-          )}
+          </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -153,8 +155,9 @@ export default function CostEstimate({
               </tbody>
               <tfoot className="bg-accent text-accent-foreground font-semibold">
                 <tr>
-                  <td colSpan={2} className="px-3 py-2 text-right">TOTAL</td>
-                  <td className="px-3 py-2 font-mono">{totalWeight.toFixed(3)} MT</td>
+                  <td className="px-3 py-2"></td>
+                  <td className="px-3 py-2 text-right">TOTAL</td>
+                  <td className="px-3 py-2 font-mono text-lg">{totalWeight.toFixed(3)} MT</td>
                   <td className="px-3 py-2"></td>
                   <td className="px-3 py-2 font-mono text-lg" data-testid="text-estimate-total">
                     ₹{totalCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
