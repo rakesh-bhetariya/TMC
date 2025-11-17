@@ -76,8 +76,8 @@
 
 // server/index.ts (production / Vercel entry)
 import express, { type Request, type Response, type NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { serveStatic, log } from "./vite"; // serveStatic must NOT import Vite internally
+import { registerRoutes } from "./routes.ts";
+import { serveStatic, log } from "./vite.ts"; // serveStatic must NOT import Vite internally
 
 const app = express();
 

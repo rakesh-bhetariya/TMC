@@ -1,7 +1,7 @@
 // server/prod.ts
 import express, { type Request, type Response, type NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { serveStatic, log } from "./vite";
+import { registerRoutes } from "./routes.ts";
+import { serveStatic, log } from "./vite.ts";
 
 const app = express();
 

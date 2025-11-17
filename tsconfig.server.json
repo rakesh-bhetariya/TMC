@@ -2,11 +2,15 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
       "outDir": "dist/server",
-      "rootDir": "server",
+      "rootDir": ".",
       "module": "node16",
       "moduleResolution": "node16",
-      "target": "es2020"
+      "target": "es2020",
+      "baseUrl": ".",
+      "paths": {
+        "@shared/*": ["shared/*"]
+      }
     },
-    "include": ["server"]
+    "include": ["server", "shared"]
   }
   

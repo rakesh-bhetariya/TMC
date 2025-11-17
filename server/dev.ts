@@ -1,7 +1,7 @@
 // server/dev.ts
 import express from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, log } from "./vite";
+import { registerRoutes } from "./routes.ts";
+import { setupVite, log } from "./vite.ts";
 
 const app = express();
 
