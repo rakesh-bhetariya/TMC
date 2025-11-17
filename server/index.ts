@@ -74,9 +74,10 @@
 
 // server/index.ts
 
+// server/index.ts (production / Vercel entry)
 import express, { type Request, type Response, type NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { serveStatic, log } from "./vite"; // only import serveStatic + log statically
+import { serveStatic, log } from "./vite"; // serveStatic must NOT import Vite internally
 
 const app = express();
 
@@ -101,11 +102,9 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
       if (logLine.length > 80) {
         logLine = logLine.slice(0, 79) + "…";
       }
-
       log(logLine);
     }
   });
@@ -119,39 +118,24 @@ async function bootstrap() {
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
     throw err;
   });
 
-  // In development, dynamically import Vite dev middleware
-  if (app.get("env") === "development") {
-    const { setupVite } = await import("./vite");
-    await setupVite(app, server);
-  } else {
-    // In production (including Vercel), only serve static assets
-    serveStatic(app);
-  }
+  // Always static in production (Vercel)
+  serveStatic(app);
 
-  // Only listen locally (Replit / dev), not on Vercel
   if (!process.env.VERCEL) {
     const port = parseInt(process.env.PORT || "5003", 10);
     server.listen(
-      {
-        port,
-        host: "0.0.0.0",
-      },
-      () => {
-        log(`serving on port ${port}`);
-      }
+      { port, host: "0.0.0.0" },
+      () => log(`serving on port ${port}`)
     );
   }
 }
 
-// start in dev / local
 bootstrap();
 
-// Vercel uses this export
 export default app;
 
 

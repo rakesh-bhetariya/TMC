@@ -19,6 +19,10 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
+/**
+ * Dev-only Vite setup. This should only ever be called from the dev entry
+ * (or when app.get("env") === "development").
+ */
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
@@ -41,23 +45,25 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
+
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
     try {
       const clientTemplate = path.resolve(
-        import.meta.dirname,
+        // server/ (this file) -> go up to project root, then into client
+        path.dirname(new URL(import.meta.url).pathname),
         "..",
         "client",
         "index.html",
       );
 
-      // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`,
       );
+
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
@@ -67,8 +73,15 @@ export async function setupVite(app: Express, server: Server) {
   });
 }
 
+/**
+ * Production static serving. This is what runs on Vercel.
+ * It must not use Vite APIs so that Vite/Rollup stay out of the prod bundle.
+ */
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  // In ESM, use import.meta.url instead of __dirname
+  const here = path.dirname(new URL(import.meta.url).pathname);
+  // server/vite.ts -> project root -> dist/public
+  const distPath = path.resolve(here, "..", "dist", "public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
