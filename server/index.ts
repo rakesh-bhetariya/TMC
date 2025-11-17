@@ -74,11 +74,12 @@
 
 // server/index.ts
 
-import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes"; // adjust path if needed
-import { setupVite, serveStatic, log } from "./vite"; // adjust path if needed
+import express, { type Request, type Response, type NextFunction } from "express";
+import { registerRoutes } from "./routes";
+import { serveStatic, log } from "./vite"; // only import serveStatic + log statically
 
 const app = express();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -123,9 +124,12 @@ async function bootstrap() {
     throw err;
   });
 
+  // In development, dynamically import Vite dev middleware
   if (app.get("env") === "development") {
+    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else {
+    // In production (including Vercel), only serve static assets
     serveStatic(app);
   }
 
@@ -135,7 +139,7 @@ async function bootstrap() {
     server.listen(
       {
         port,
-        host: "0.0.0.0"
+        host: "0.0.0.0",
       },
       () => {
         log(`serving on port ${port}`);
@@ -149,4 +153,5 @@ bootstrap();
 
 // Vercel uses this export
 export default app;
+
 
