@@ -78,9 +78,7 @@ export async function setupVite(app: Express, server: Server) {
  * It must not use Vite APIs so that Vite/Rollup stay out of the prod bundle.
  */
 export function serveStatic(app: Express) {
-  // In ESM, use import.meta.url instead of __dirname
   const here = path.dirname(new URL(import.meta.url).pathname);
-  // server/vite.ts -> project root -> dist/public
   const distPath = path.resolve(here, "..", "dist", "public");
 
   if (!fs.existsSync(distPath)) {
@@ -91,7 +89,6 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
